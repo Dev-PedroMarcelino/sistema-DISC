@@ -13,7 +13,14 @@ const port = process.env.PORT || 3000;
 const apiKey = process.env.GEMINI_API_KEY;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+
+// 1. Libera o acesso aos arquivos visuais (CSS, JS, Imagens)
+app.use(express.static(__dirname));
+
+// 2. Entrega o site quando a pessoa entra na página inicial (A correção do Cannot GET)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.post('/api/gemini', async (req, res) => {
   if (!apiKey) {
@@ -66,4 +73,5 @@ app.listen(port, () => {
   console.log(`🚀 DISC app backend rodando em http://localhost:${port}`);
 });
 
+// Exportação necessária para a Vercel transformar o app em Serverless
 module.exports = app;
