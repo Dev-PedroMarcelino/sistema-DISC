@@ -62,6 +62,11 @@ app.post('/api/gemini', async (req, res) => {
   });
 });
 
+// Quando alguém acessar a raiz do site, entregue o HTML principal
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.listen(port, () => {
   console.log(`🚀 DISC app backend rodando em http://localhost:${port}`);
 });
