@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai'); 
 
 dotenv.config();
@@ -10,7 +11,17 @@ const apiKey = process.env.GEMINI_API_KEY;
 
 app.use(express.json());
 
-// ROTA EXCLUSIVA PARA A INTELIGÊNCIA ARTIFICIAL
+// --- A CORREÇÃO (O PLANO B) ---
+// 1. Libera o CSS, as imagens (pasta midia) e os scripts
+app.use(express.static(__dirname));
+
+// 2. Entrega o index.html quando a página inicial é acessada
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+// ------------------------------
+
+// ROTA EXCLUSIVA PARA A IA
 app.post('/api/gemini', async (req, res) => {
   if (!apiKey) {
     return res.status(500).json({ error: 'Gemini API key não configurada.' });
@@ -47,5 +58,4 @@ app.listen(port, () => {
   console.log(`🚀 API rodando na porta ${port}`);
 });
 
-// Essencial para a Vercel
 module.exports = app;
