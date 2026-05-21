@@ -104,22 +104,14 @@ window.deliverAiAnalysis = function(analysisText) {
     window.quizAppState.aiAnalysisContent = analysisText;
   }
 
-  const containerRelatorio = document.getElementById('relatorioIA');
-  if (containerRelatorio) {
-    const cleaned = tidyReportText(analysisText);
-    const rendered = window.marked ? marked.parse(cleaned) : cleaned.replace(/\n/g, '<br>');
-    
-    // Agora o texto vai puro, pois a div com o estilo já está lá no HTML
-    containerRelatorio.innerHTML = rendered; 
-  }
+  // CORREÇÃO ESTRUTURAL: Salva o texto bruto do relatório no localStorage de forma limpa
+  localStorage.setItem('discAiReport', analysisText);
 
   if (analysisStatus) {
-    analysisStatus.textContent = 'Análise completa pronta! Clique para ler ou baixar o PDF.';
+    analysisStatus.textContent = 'Análise completa pronta! Clique abaixo para gerenciar seu relatório.';
   }
   
   if (aiAnalysisBtn) aiAnalysisBtn.classList.add('hidden');
   if (downloadReportBtn) downloadReportBtn.classList.remove('hidden');
-  
-  // Exibe o botão que abre a tela cheia
   if (openReportBtn) openReportBtn.classList.remove('hidden');
 };

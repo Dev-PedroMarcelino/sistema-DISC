@@ -18,21 +18,13 @@
   });
 }
 
-// --- CONTROLE DA TELA CHEIA DO RELATÓRIO IA ---
+// --- CONTROLE DA NOVA TELA DEDICADA DO RELATÓRIO IA ---
 const openReportBtn = document.getElementById('openReportBtn');
-const closeReportBtn = document.getElementById('closeReportBtn');
-const reportModal = document.getElementById('reportModal');
 
-if (openReportBtn && closeReportBtn && reportModal) {
-  // Evento de Abrir Tela Cheia
+if (openReportBtn) {
   openReportBtn.addEventListener('click', () => {
-    reportModal.classList.add('visible');
-    document.body.style.overflow = 'hidden'; // Trava a rolagem da página de fundo
-  });
-
-  // Evento de Fechar Tela Cheia
-  closeReportBtn.addEventListener('click', () => {
-    reportModal.classList.remove('visible');
-    document.body.style.overflow = ''; // Devolve a rolagem normal para a página
+    // Abrir em uma nova aba é a melhor prática técnica porque preserva o estado 
+    // das variáveis locais, o gráfico radar e o progresso na tela anterior!
+    window.open('relatorio.html', '_blank');
   });
 }

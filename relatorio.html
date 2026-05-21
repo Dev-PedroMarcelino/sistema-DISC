@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DISC - Relatório Oficial</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Estilos customizados e focados na legibilidade do relatório dedicado */
+    .report-page-wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding-bottom: 5rem;
+    }
+    .report-card-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 32px;
+      padding: 2.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+    }
+    .no-report-alert {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    @media (max-width: 768px) {
+      .report-card-container {
+        padding: 1.5rem;
+        border-radius: 24px;
+      }
+    }
+  </style>
+</head>
+<body data-page="report" style="background: var(--bg); color: var(--white); min-height: 100vh; padding: 1.5rem 1rem;">
+  <main class="report-page-wrap">
+    
+    <section class="top-brand my-3">
+      <div class="brand-mark">
+        <img src="midia/logo.png" alt="DISC logo" class="logo-imagem">
+      </div>
+      <div class="top-brand-meta">
+        <div class="top-brand-title">
+          <span class="section-label">Análise de Perfil</span>
+          <h1 style="font-size: 1.4rem; color: #fff; margin: 0; font-family: 'Archivo Black', sans-serif;">Laudo Comportamental</h1>
+        </div>
+        <div class="top-brand-links">
+          <button class="btn btn-special btn-sm" id="backToQuiz">Voltar para os resultados</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="report-card-container">
+      <div id="relatorioConteudoDedicado" class="formatted-report">
+        </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('relatorioConteudoDedicado');
+      const textSaved = localStorage.getItem('discAiReport');
+      const btnBack = document.getElementById('backToQuiz');
+
+      // Função de higienização igual à original do sistema para manter o padrão
+      function tidyReportText(text) {
+        let cleaned = String(text || '');
+        cleaned = cleaned.replace(/\*\(Nota de RH:[\s\S]*?\)\*/gi, '');
+        cleaned = cleaned.replace(/Nota de RH:[\s\S]*$/gi, '');
+        cleaned = cleaned.replace(/^\*\s+/gm, '');
+        cleaned = cleaned.replace(/^#+\s+/gm, function(header) {
+          return header.replace(/#/g, '').trim() + '\n';
+        });
+        cleaned = cleaned.replace(/\r\n?/g, '\n');
+        cleaned = cleaned.replace(/não pôde ser categorizado de forma estrita em um único vetor DISC\.?/gi, '');
+        cleaned = cleaned.replace(/não há valores percentuais confiáveis disponíveis[\s\S]*$/gi, '');
+        return cleaned.trim();
+      }
+
+      if (textSaved) {
+        const cleanedText = tidyReportText(textSaved);
+        // Se a biblioteca Marked carregou com sucesso, renderiza como HTML limpo, senão usa quebras normais
+        if (window.marked && typeof window.marked.parse === 'function') {
+          container.innerHTML = window.marked.parse(cleanedText);
+        } else {
+          container.innerHTML = cleanedText.replace(/\n/g, '<br>');
+        }
+      } else {
+        container.innerHTML = `
+          <div class="no-report-alert">
+            <h3>Nenhum laudo encontrado</h3>
+            <p>Por favor, realize o questionário completo e clique em "Gerar análise" primeiro.</p>
+          </div>
+        `;
+      }
+
+      // Lógica dinâmica para o botão voltar
+      if (btnBack) {
+        btnBack.addEventListener('click', () => {
+          // Se o navegador abriu o relatório em uma nova aba isolada, fechamos a aba para voltar para a aba do quiz intacta
+          if (window.opener) {
+            window.close();
+          } else {
+            // Fallback de navegação padrão se tiver na mesma janela
+            window.location.href = 'questionario.html';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
