@@ -1,14 +1,4 @@
-﻿function normalizePercentageValues(percentages) {
-  const safe = percentages || {};
-  return {
-    D: Number.isFinite(parseFloat(safe.D)) ? parseFloat(safe.D) : 0,
-    I: Number.isFinite(parseFloat(safe.I)) ? parseFloat(safe.I) : 0,
-    S: Number.isFinite(parseFloat(safe.S)) ? parseFloat(safe.S) : 0,
-    C: Number.isFinite(parseFloat(safe.C)) ? parseFloat(safe.C) : 0
-  };
-}
-
-function tidyReportText(text) {
+﻿function tidyReportText(text) {
   let cleaned = String(text || '');
   cleaned = cleaned.replace(/\*\(Nota de RH:[\s\S]*?\)\*/gi, '');
   cleaned = cleaned.replace(/Nota de RH:[\s\S]*$/gi, '');
@@ -26,11 +16,16 @@ window.onAiAnalysisRequested = async function(payload) {
   const analysisStatus = document.getElementById('analysisStatus');
   if (analysisStatus) analysisStatus.textContent = 'Preparando prompt para o modelo generativo...';
 
-  const normalized = normalizePercentageValues(payload.percentages || {});
-  const totals = payload.totals || { D: 0, I: 0, S: 0, C: 0 };
-  const hasPercentages = Object.values(normalized).some(value => value > 0);
+  // 1. SOLUÇÃO DEFINITIVA: A IA "lê" os resultados direto da tela HTML!
+  // Isso ignora falhas de comunicação entre os arquivos JS.
+  const valD = parseFloat(document.getElementById('percentD')?.innerText || '0');
+  const valI = parseFloat(document.getElementById('percentI')?.innerText || '0');
+  const valS = parseFloat(document.getElementById('percentS')?.innerText || '0');
+  const valC = parseFloat(document.getElementById('percentC')?.innerText || '0');
 
-  // 1. CÁLCULO À PROVA DE BALAS: Identifica o Top 1 e Top 2 para checar equilíbrio
+  const normalized = { D: valD, I: valI, S: valS, C: valC };
+
+  // 2. CÁLCULO DE POSIÇÕES: Identifica o Top 1 e Top 2
   const arrayPercentuais = Object.entries(normalized); // Vira [['D', 34.1], ['I', 25.3], ...]
   arrayPercentuais.sort((a, b) => b[1] - a[1]); // Ordena do maior para o menor
   
@@ -42,8 +37,9 @@ window.onAiAnalysisRequested = async function(payload) {
   // Verifica se a diferença entre o 1º e o 2º lugar é de até 5%
   const diferenca = nota1 - nota2;
   const temPerfilEquilibrado = diferenca <= 5.0 && nota2 > 0;
+  const hasPercentages = nota1 > 0;
 
-  // Dicionário para traduzir a letra para a IA não se confundir
+  // Dicionário para traduzir a letra para a IA
   const nomesDisc = {
     'D': 'Dominância',
     'I': 'Influência',
@@ -55,10 +51,10 @@ window.onAiAnalysisRequested = async function(payload) {
   const nome2 = nomesDisc[letra2];
 
   const percentageDetails = hasPercentages
-    ? `Dados exatos: Totais D ${totals.D.toFixed(1)}, I ${totals.I.toFixed(1)}, S ${totals.S.toFixed(1)}, C ${totals.C.toFixed(1)}; Percentuais D ${normalized.D.toFixed(1)}%, I ${normalized.I.toFixed(1)}%, S ${normalized.S.toFixed(1)}%, C ${normalized.C.toFixed(1)}%.`
+    ? `Resultados exatos obtidos no teste: D: ${valD}%, I: ${valI}%, S: ${valS}%, C: ${valC}%.`
     : 'Não há valores percentuais confiáveis disponíveis.';
 
-  // 2. LÓGICA DINÂMICA DO PROMPT: O JS escolhe qual regra enviar para a IA
+  // 3. LÓGICA DINÂMICA DO PROMPT
   let instrucoesDaIA = "";
 
   if (temPerfilEquilibrado) {
@@ -82,8 +78,12 @@ window.onAiAnalysisRequested = async function(payload) {
     `4) Plano de Ação (3 passos práticos).`;
   }
 
-  // O prompt final junta os dados com as instruções que o JS escolheu acima
-  const prompt = `Atue como um analista de RH sênior. Gere um Relatório de Análise Comportamental DISC oficial e impessoal (terceira pessoa) para: ${payload.participantName} (nascimento: ${payload.participantBirth}).\n\n` +
+  // Nome e data de nascimento recuperados do localStorage (caso o payload venha vazio)
+  const nomeParticipante = payload.participantName || localStorage.getItem('discParticipantName') || 'Candidato';
+  const nascParticipante = payload.participantBirth || localStorage.getItem('discParticipantBirth') || 'Não informada';
+
+  // O prompt final
+  const prompt = `Atue como um analista de RH sênior. Gere um Relatório de Análise Comportamental DISC oficial e impessoal (terceira pessoa) para: ${nomeParticipante} (nascimento: ${nascParticipante}).\n\n` +
     `[DADOS RIGOROSOS DO TESTE]\n` +
     `${percentageDetails}\n\n` +
     `${instrucoesDaIA}`;
@@ -110,12 +110,7 @@ window.onAiAnalysisRequested = async function(payload) {
     if (analysisStatus) analysisStatus.textContent = 'Erro ao chamar o proxy de IA. Usando fallback local.';
   }
 
-  const fallbackPercentages = normalizePercentageValues(payload.percentages || {});
-  const fallbackPercentText = Object.values(fallbackPercentages).some(value => value > 0)
-    ? `Resultados percentuais: D ${fallbackPercentages.D}%, I ${fallbackPercentages.I}%, S ${fallbackPercentages.S}%, C ${fallbackPercentages.C}%.`
-    : 'Não há percentuais completos disponíveis.';
-
-  const fallback = `Análise DISC para ${payload.participantName}: perfil dominante calculado: ${letra1}.\n\n${fallbackPercentText}\n\nResumo: Este texto é uma análise local de exemplo. Para uma análise completa, configure a chave no servidor e reinicie o backend.`;
+  const fallback = `Análise DISC para ${nomeParticipante}: perfil dominante calculado: ${letra1}.\n\n${percentageDetails}\n\nResumo: Este texto é uma análise local de exemplo. Para uma análise completa, configure a chave no servidor e reinicie o backend.`;
   window.deliverAiAnalysis(fallback);
 };
 
@@ -139,7 +134,7 @@ window.deliverAiAnalysis = function(analysisText) {
     window.quizAppState.aiAnalysisContent = analysisText;
   }
 
-  // CORREÇÃO ESTRUTURAL: Salva o texto bruto do relatório no localStorage de forma limpa
+  // Salva o texto bruto do relatório no localStorage de forma limpa
   localStorage.setItem('discAiReport', analysisText);
 
   if (analysisStatus) {
