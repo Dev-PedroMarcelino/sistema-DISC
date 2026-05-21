@@ -1,15 +1,14 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Vercel Serverless Function handler nativo
 module.exports = async (req, res) => {
-  // Garante que a rota só aceita requisições do tipo POST
+  // Trava de segurança para aceitar apenas requisições corretas
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido. Use POST.' });
+    return res.status(405).json({ error: 'Método não permitido.' });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'Gemini API key não configurada no painel da Vercel.' });
+    return res.status(500).json({ error: 'Gemini API key não configurada.' });
   }
 
   const { prompt } = req.body;
@@ -25,18 +24,16 @@ module.exports = async (req, res) => {
 
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // Testa os modelos um por um até obter sucesso
+  // Nossa cascata de modelos que funcionou perfeitamente
   for (const nomeModelo of modelosParaTestar) {
     try {
       const model = genAI.getGenerativeModel({ model: nomeModelo });
       const result = await model.generateContent(prompt);
-      
-      // Retorna o texto diretamente em formato JSON
-      return res.json({ text: result.response.text() });
+      return res.status(200).json({ text: result.response.text() });
     } catch (error) {
-      console.warn(`⚠️ Modelo ${nomeModelo} falhou no ambiente serverless.`);
+      console.warn(`Modelo ${nomeModelo} falhou, testando o próximo...`);
     }
   }
 
-  return res.status(503).json({ error: 'Todos os modelos falharam ou estão congestionados.' });
+  return res.status(503).json({ error: 'Servidores congestionados no momento.' });
 };
