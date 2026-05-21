@@ -1157,8 +1157,10 @@ h1, h2, h3, .impact-text {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
+  height: 100dvh; /* Altura dinâmica real do celular (ignora barras do navegador) */
   background: var(--bg);
   z-index: 99999;
   display: flex;
@@ -1167,6 +1169,7 @@ h1, h2, h3, .impact-text {
   pointer-events: none;
   transform: translateY(20px);
   transition: opacity 0.35s ease, transform 0.35s ease;
+  overflow: hidden; /* Força o modal a não passar do tamanho da tela */
 }
 
 .report-modal.visible {
@@ -1183,6 +1186,7 @@ h1, h2, h3, .impact-text {
   background: rgba(10, 8, 35, 0.95);
   border-bottom: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Impede o cabeçalho de amassar quando o texto é muito longo */
 }
 
 .report-modal-header h2 {
@@ -1192,8 +1196,9 @@ h1, h2, h3, .impact-text {
 }
 
 .report-modal-content {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1 1 auto; /* Diz que essa caixa tem que preencher o espaço, mas pode diminuir se precisar */
+  overflow-y: auto; /* AQUI MORA O SCROLL */
+  -webkit-overflow-scrolling: touch; /* Scroll super suave em dispositivos Apple */
   padding: 2rem 1.5rem;
   background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 80%);
 }
