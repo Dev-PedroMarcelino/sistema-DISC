@@ -99,18 +99,30 @@
           </div>
           <div class="radar-chart" id="radarChart"></div>
           <div class="disc-summary-grid" id="discCardsContainer"></div>
+          
           <div class="analysis-panel" id="analysisPanel">
             <p class="analysis-status" id="analysisStatus">Ao terminar, você poderá solicitar uma análise completa por IA.</p>
             <div class="analysis-actions">
               <button class="secondary-btn" id="aiAnalysisBtn">Gerar análise completa por IA</button>
-              <button class="secondary-btn hidden" id="downloadReportBtn">Baixar relatório em PDF</button>
-              <button class="secondary-btn hidden" id="openReportBtn">Abrir relatório</button>
+              <button class="secondary-btn hidden" id="openReportBtn">Abrir Relatório</button>
+              <button class="secondary-btn hidden" id="downloadReportBtn">Baixar PDF</button>
             </div>
-              <div id="relatorioIA" class="mt-4" style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.24); border-radius: 22px; color: rgba(255,255,255,0.85); padding: 2rem; display: none; line-height: 1.6;"></div>
           </div>
+          
           <button class="primary-btn" id="restartQuiz">Refazer com outro modo</button>
         </div>
       </section>
+
+      <div id="reportModal" class="report-modal">
+        <div class="report-modal-header">
+          <h2>Seu Relatório DISC</h2>
+          <button id="closeReportBtn" class="primary-btn" style="padding: 0.5rem 1.2rem; font-size: 0.9rem;">Voltar</button>
+        </div>
+        <div class="report-modal-content">
+          <div id="relatorioIA" class="formatted-report"></div>
+        </div>
+      </div>
+
     </section>
   </main>
 

@@ -88,6 +88,7 @@ window.deliverAiAnalysis = function(analysisText) {
   const analysisStatus = document.getElementById('analysisStatus');
   const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
   const downloadReportBtn = document.getElementById('downloadReportBtn');
+  const openReportBtn = document.getElementById('openReportBtn');
 
   if (!analysisText) {
     if (analysisStatus) {
@@ -106,19 +107,19 @@ window.deliverAiAnalysis = function(analysisText) {
   const containerRelatorio = document.getElementById('relatorioIA');
   if (containerRelatorio) {
     const cleaned = tidyReportText(analysisText);
-    // Renderiza usando o Marked (se disponível) ou apenas quebras de linha normais
     const rendered = window.marked ? marked.parse(cleaned) : cleaned.replace(/\n/g, '<br>');
-    containerRelatorio.innerHTML = `<div class="formatted-report">${rendered}</div>`;
-    containerRelatorio.style.display = 'block';
+    
+    // Agora o texto vai puro, pois a div com o estilo já está lá no HTML
+    containerRelatorio.innerHTML = rendered; 
   }
 
   if (analysisStatus) {
-    analysisStatus.textContent = 'Análise completa pronta! Clique para baixar o PDF.';
+    analysisStatus.textContent = 'Análise completa pronta! Clique para ler ou baixar o PDF.';
   }
-  if (aiAnalysisBtn) {
-    aiAnalysisBtn.classList.add('hidden');
-  }
-  if (downloadReportBtn) {
-    downloadReportBtn.classList.remove('hidden');
-  }
+  
+  if (aiAnalysisBtn) aiAnalysisBtn.classList.add('hidden');
+  if (downloadReportBtn) downloadReportBtn.classList.remove('hidden');
+  
+  // Exibe o botão que abre a tela cheia
+  if (openReportBtn) openReportBtn.classList.remove('hidden');
 };
