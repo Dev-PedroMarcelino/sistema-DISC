@@ -76,9 +76,10 @@ h1, h2, h3, .impact-text {
 
 .logo-imagem {
   max-width: 220px;
-  width: 100%;
+  width: auto; /* Liberamos a largura para não forçar esticamento */
   height: auto;
   max-height: 78px;
+  object-fit: contain; /* Trava anti-esticamento que mantém a proporção perfeita */
 }
 
 .top-brand .brand-mark {
