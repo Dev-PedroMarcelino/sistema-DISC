@@ -1,97 +1,122 @@
-﻿window.generatePdfReport = function({ participant, birth, mode, quizLength, analysisText, lastResultData, modeLabel }) {
-  const jsPDFConstructor = window.jspdf?.jsPDF;
-  if (!jsPDFConstructor) {
-    alert('Biblioteca jsPDF não encontrada. Não é possível gerar PDF.');
+﻿window.addEventListener('DOMContentLoaded', () => {
+  const downloadReportBtn = document.getElementById('downloadReportBtn');
+  if (downloadReportBtn) {
+    downloadReportBtn.addEventListener('click', () => {
+      exportReportToPDF();
+    });
+  }
+});
+
+function exportReportToPDF() {
+  // Inicializa a biblioteca jsPDF instalada no sistema
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  // Recupera os dados do participante e do laudo guardados no navegador
+  const name = localStorage.getItem('discParticipantName') || 'Visitante';
+  const birth = localStorage.getItem('discParticipantBirth') || '';
+  const rawReport = localStorage.getItem('discAiReport');
+
+  if (!rawReport) {
+    alert('Nenhum relatório encontrado para exportar.');
     return;
   }
 
-  const doc = new jsPDFConstructor({ unit: 'pt', format: 'a4' });
-  const margin = 40;
-  const maxWidth = 515;
-  let y = 50;
-
-  // Capa elegante
-  doc.setFillColor(67, 56, 202);
-  doc.rect(0, 0, 595, 120, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Análise Comportamental DISC', margin, y);
-
-  y += 37;
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Nome: ${participant}`, margin, y);
-  y += 16;
-  doc.text(`Nascimento: ${birth}`, margin, y);
-  y += 16;
-  doc.text(`Modo: ${modeLabel[mode] || mode || 'N/A'} (${quizLength} perguntas)`, margin, y);
-  y += 26;
-
-  const cleaned = String(analysisText || '')
-    .replace(/\*?\(Nota de RH:[\s\S]*?\)\*?/gi, '')
-    .replace(/Nota de RH:[\s\S]*$/gi, '')
-    .replace(/[#*]/g, '')
-    .replace(/\r\n?/g, '\n')
-    .replace(/\n{2,}/g, '\n\n')
-    .trim();
-
-  const analysisTitle = 'Análise de perfil e recomendações';
-  doc.setTextColor(38, 50, 56);
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text(analysisTitle, margin, y);
-  y += 18;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-  const analysisLines = doc.splitTextToSize(cleaned, maxWidth);
-  doc.text(analysisLines, margin, y);
-  y += analysisLines.length * 15 + 24;
-
-  doc.setDrawColor(67, 56, 202);
-  doc.setLineWidth(1);
-  doc.line(margin, y, margin + maxWidth, y);
-  y += 18;
-
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Resultados técnicos DISC', margin, y);
-  y += 20;
-
-  const colors = {
-    D: [228, 75, 75],
-    I: [244, 182, 76],
-    S: [92, 178, 124],
-    C: [78, 143, 227]
-  };
-
-  Object.entries(lastResultData.percentages || { D: 0, I: 0, S: 0, C: 0 }).forEach(([letter, value]) => {
-    const color = colors[letter] || [55, 65, 81];
-    if (Array.isArray(color)) doc.setTextColor(...color);
-    else doc.setTextColor(color);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${letter}:`, margin, y);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(33, 37, 41);
-    doc.text(`${value}%`, margin + 50, y);
-    y += 18;
-  });
-
-  const noteText = Object.values(lastResultData.percentages || {}).some(v => Number.isFinite(v) && v > 0)
-    ? ''
-    : 'Nota: não foram obtidos percentuais completos no sistema. Esse relatório prioriza análise qualitativa das tendências observadas.';
-
-  if (noteText) {
-    y += 10;
-    doc.setTextColor(95, 99, 104);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'italic');
-    const noteLines = doc.splitTextToSize(noteText, maxWidth);
-    doc.text(noteLines, margin, y);
-    y += noteLines.length * 14;
+  // Limpa caracteres de formatação pesada do Markdown antes de jogar no PDF
+  function cleanTextForPdf(text) {
+    let cleaned = String(text || '');
+    cleaned = cleaned.replace(/\*+/g, ''); // Remove asteriscos de negrito
+    cleaned = cleaned.replace(/#+\s+/g, ''); // Remove hashtags de títulos
+    return cleaned.trim();
   }
 
-  const fileName = `analise-comportamental-${participant.replace(/\s+/g, '_')}.pdf`;
-  doc.save(fileName);
-};
+  const reportText = cleanTextForPdf(rawReport);
+
+  // CONFIGURAÇÕES DE PÁGINA (Medidas oficiais do papel A4 em milímetros)
+  const pageHeight = 297;
+  const pageWidth = 210;
+  const margin = 20; // Margem lateral de 2cm
+  const maxLineWidth = pageWidth - (margin * 2); // Largura máxima do texto: 170mm
+  
+  let y = margin; // Controla a altura atual da "caneta" de escrita
+
+  // --- DESIGN DO CABEÇALHO (PÁGINA 1) ---
+  // Cria uma faixa colorida no topo usando a cor base do seu sistema (#5244a8)
+  doc.setFillColor(82, 68, 168); 
+  doc.rect(0, 0, pageWidth, 42, 'F');
+
+  // Texto do título dentro da faixa
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.text('LAUDO COMPORTAMENTAL DISC', margin, 18);
+
+  // Metadados do participante
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text(`Participante: ${name} ${birth ? `| Nascimento: ${birth}` : ''}`, margin, 28);
+  doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, margin, 34);
+
+  // Posiciona a caneta para começar o texto abaixo da faixa do cabeçalho
+  y = 54;
+
+  // Configura a cor e tamanho padrão para o corpo do texto (Cinza escuro para melhor leitura)
+  doc.setTextColor(45, 45, 45);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  
+  const lineHeight = 6.5; // Distância entre as linhas em milímetros
+
+  // Divide o texto por quebras de linha para preservar os parágrafos originais da IA
+  const paragraphs = reportText.split('\n');
+
+  paragraphs.forEach((para) => {
+    const trimmedPara = para.trim();
+    if (!trimmedPara) {
+      y += 4; // Se for um parágrafo vazio, apenas pula um espaço sutil
+      return;
+    }
+
+    // A MÁGICA: Quebra o parágrafo longo em um array de linhas curtas que cabem na página
+    const lines = doc.splitTextToSize(trimmedPara, maxLineWidth);
+
+    lines.forEach((line) => {
+      // VERIFICAÇÃO ANTI-CORTE: Se a próxima linha estourar a margem de segurança do fundo (20mm)...
+      if (y + lineHeight > (pageHeight - margin)) {
+        doc.addPage(); // Cria uma nova folha em branco automaticamente
+        y = margin + 10; // Reinicia a caneta no topo da folha nova dando um espaçamento
+        
+        // Adiciona um rodapé discreto indicando a continuidade do documento
+        doc.setFontSize(8);
+        doc.setTextColor(160, 160, 160);
+        doc.text(`Relatório DISC • ${name} • Página de Continuidade`, margin, pageHeight - 10);
+        
+        // Devolve as configurações de cor e fonte do texto principal
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(45, 45, 45);
+      }
+
+      // Aplica um leve negrito mecânico se a linha parecer um título de seção (ex: "1) Resumo...")
+      if (/^\d\)/.test(line) || (line.toUpperCase() === line && line.length > 5)) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(line, margin, y);
+        doc.setFont('helvetica', 'normal');
+      } else {
+        doc.text(line, margin, y);
+      }
+
+      // Desce a caneta para a próxima linha
+      y += lineHeight;
+    });
+
+    y += 2.5; // Dá um espaço extra sutil ao finalizar cada bloco de parágrafo completo
+  });
+
+  // Finaliza gerando o download do arquivo nomeado dinamicamente
+  doc.save(`Relatorio_DISC_${name.replace(/\s+/g, '_')}.pdf`);
+}
