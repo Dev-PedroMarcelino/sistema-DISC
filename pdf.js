@@ -45,7 +45,7 @@ function exportReportToPDF() {
   let y = margin; // Controla a altura atual da "caneta" de escrita
 
   // --- DESIGN DO CABEÇALHO (PÁGINA 1) ---
-  // Cria uma faixa colorida no topo usando a cor base do seu sistema (#5244a8)
+  // Cria uma faixa colorida no topo usando a cor base do sistema (#5244a8)
   doc.setFillColor(82, 68, 168); 
   doc.rect(0, 0, pageWidth, 42, 'F');
 
@@ -55,16 +55,19 @@ function exportReportToPDF() {
   doc.setFontSize(20);
   doc.text('LAUDO COMPORTAMENTAL DISC', margin, 18);
 
-  // Metadados do participante
-  // Corrige o erro dos 2 dias adiantados
-  const dataEmissao = new Date();
-  dataEmissao.setDate(dataEmissao.getDate() - 2);
+  // --- CORREÇÃO DA DATA: Lê estritamente o relógio local do usuário ---
+  const dataAtual = new Date();
+  const dataFormatada = dataAtual.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 
   // Metadados do participante
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text(`Participante: ${name} ${birth ? `| Nascimento: ${birth}` : ''}`, margin, 28);
-  doc.text(`Data de Emissão: ${dataEmissao.toLocaleDateString('pt-BR')}`, margin, 34);
+  doc.text(`Data de Emissão: ${dataFormatada}`, margin, 34);
 
   // Posiciona a caneta para começar o texto abaixo da faixa do cabeçalho
   y = 54;
