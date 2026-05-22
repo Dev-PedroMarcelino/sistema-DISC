@@ -55,19 +55,10 @@ function exportReportToPDF() {
   doc.setFontSize(20);
   doc.text('LAUDO COMPORTAMENTAL DISC', margin, 18);
 
-  // --- CORREÇÃO DA DATA: Lê estritamente o relógio local do usuário ---
-  const dataAtual = new Date();
-  const dataFormatada = dataAtual.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-
   // Metadados do participante
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text(`Participante: ${name} ${birth ? `| Nascimento: ${birth}` : ''}`, margin, 28);
-  doc.text(`Data de Emissão: ${dataFormatada}`, margin, 34);
 
   // Posiciona a caneta para começar o texto abaixo da faixa do cabeçalho
   y = 54;
