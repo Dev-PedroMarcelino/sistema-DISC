@@ -56,10 +56,15 @@ function exportReportToPDF() {
   doc.text('LAUDO COMPORTAMENTAL DISC', margin, 18);
 
   // Metadados do participante
+  // Corrige o erro dos 2 dias adiantados
+  const dataEmissao = new Date();
+  dataEmissao.setDate(dataEmissao.getDate() - 2);
+
+  // Metadados do participante
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text(`Participante: ${name} ${birth ? `| Nascimento: ${birth}` : ''}`, margin, 28);
-  doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, margin, 34);
+  doc.text(`Data de Emissão: ${dataEmissao.toLocaleDateString('pt-BR')}`, margin, 34);
 
   // Posiciona a caneta para começar o texto abaixo da faixa do cabeçalho
   y = 54;
