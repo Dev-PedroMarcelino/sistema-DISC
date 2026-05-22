@@ -90,8 +90,16 @@
           <div class="radar-chart" id="radarChart"></div>
           <div class="disc-summary-grid" id="discCardsContainer"></div>
           
-          <div class="analysis-panel" id="analysisPanel">
+         <div class="analysis-panel" id="analysisPanel">
             <p class="analysis-status" id="analysisStatus">Ao terminar, você poderá solicitar uma análise completa por IA.</p>
+            
+            <div class="ai-loading-wrapper hidden" id="aiLoadingWrapper">
+              <div class="ai-loading-text">A Inteligência Artificial está redigindo seu laudo...</div>
+              <div class="ai-loading-track">
+                <div class="ai-loading-bar"></div>
+              </div>
+            </div>
+
             <div class="analysis-actions">
               <button class="secondary-btn" id="aiAnalysisBtn">Gerar análise completa por IA</button>
               <button class="secondary-btn hidden" id="openReportBtn">Abrir Relatório</button>

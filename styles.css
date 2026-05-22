@@ -1342,3 +1342,48 @@ h1, h2, h3, .impact-text {
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
   border-radius: 24px;
 }
+
+/* --- BARRA DE CARREGAMENTO DA IA --- */
+.ai-loading-wrapper {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.ai-loading-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  animation: pulseText 2s infinite; /* Faz o texto piscar suavemente */
+}
+
+.ai-loading-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.3); /* Trilho escuro no fundo */
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-loading-bar {
+  width: 100%;
+  height: 100%;
+  /* Degradê animado super premium */
+  background: linear-gradient(90deg, #6c5ce7, #a29bfe, #ff7675, #6c5ce7);
+  background-size: 300% 100%;
+  border-radius: 20px;
+  animation: aiThinking 2s linear infinite;
+}
+
+/* Animações */
+@keyframes aiThinking {
+  0% { background-position: 100% 0; }
+  100% { background-position: -50% 0; }
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}

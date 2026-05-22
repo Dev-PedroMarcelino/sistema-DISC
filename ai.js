@@ -14,10 +14,16 @@
 
 window.onAiAnalysisRequested = async function(payload) {
   const analysisStatus = document.getElementById('analysisStatus');
-  if (analysisStatus) analysisStatus.textContent = 'Preparando prompt para o modelo generativo...';
+  
+  // Controle de UI de carregamento
+  const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
+  const aiLoadingWrapper = document.getElementById('aiLoadingWrapper');
+  
+  if (aiAnalysisBtn) aiAnalysisBtn.classList.add('hidden'); 
+  if (aiLoadingWrapper) aiLoadingWrapper.classList.remove('hidden'); 
+  if (analysisStatus) analysisStatus.classList.add('hidden'); 
 
-  // 1. SOLUÇÃO DEFINITIVA: A IA "lê" os resultados direto da tela HTML!
-  // Isso ignora falhas de comunicação entre os arquivos JS.
+  // Scraper de dados direto da DOM para evitar perdas no state
   const valD = parseFloat(document.getElementById('percentD')?.innerText || '0');
   const valI = parseFloat(document.getElementById('percentI')?.innerText || '0');
   const valS = parseFloat(document.getElementById('percentS')?.innerText || '0');
@@ -25,21 +31,19 @@ window.onAiAnalysisRequested = async function(payload) {
 
   const normalized = { D: valD, I: valI, S: valS, C: valC };
 
-  // 2. CÁLCULO DE POSIÇÕES: Identifica o Top 1 e Top 2
-  const arrayPercentuais = Object.entries(normalized); // Vira [['D', 34.1], ['I', 25.3], ...]
-  arrayPercentuais.sort((a, b) => b[1] - a[1]); // Ordena do maior para o menor
+  // Ordenação de perfis para check de equilíbrio
+  const arrayPercentuais = Object.entries(normalized); 
+  arrayPercentuais.sort((a, b) => b[1] - a[1]); 
   
-  const letra1 = arrayPercentuais[0][0]; // 1º lugar
+  const letra1 = arrayPercentuais[0][0]; 
   const nota1 = arrayPercentuais[0][1];
-  const letra2 = arrayPercentuais[1][0]; // 2º lugar
+  const letra2 = arrayPercentuais[1][0]; 
   const nota2 = arrayPercentuais[1][1];
 
-  // Verifica se a diferença entre o 1º e o 2º lugar é de até 5%
   const diferenca = nota1 - nota2;
   const temPerfilEquilibrado = diferenca <= 5.0 && nota2 > 0;
   const hasPercentages = nota1 > 0;
 
-  // Dicionário para traduzir a letra para a IA
   const nomesDisc = {
     'D': 'Dominância',
     'I': 'Influência',
@@ -54,7 +58,7 @@ window.onAiAnalysisRequested = async function(payload) {
     ? `Resultados exatos obtidos no teste: D: ${valD}%, I: ${valI}%, S: ${valS}%, C: ${valC}%.`
     : 'Não há valores percentuais confiáveis disponíveis.';
 
-  // 3. LÓGICA DINÂMICA DO PROMPT
+  // Build dinâmico do prompt baseado no gap de perfis
   let instrucoesDaIA = "";
 
   if (temPerfilEquilibrado) {
@@ -78,11 +82,9 @@ window.onAiAnalysisRequested = async function(payload) {
     `4) Plano de Ação (3 passos práticos).`;
   }
 
-  // Nome e data de nascimento recuperados do localStorage (caso o payload venha vazio)
   const nomeParticipante = payload.participantName || localStorage.getItem('discParticipantName') || 'Candidato';
   const nascParticipante = payload.participantBirth || localStorage.getItem('discParticipantBirth') || 'Não informada';
 
-  // O prompt final
   const prompt = `Atue como um analista de RH sênior. Gere um Relatório de Análise Comportamental DISC oficial e impessoal (terceira pessoa) para: ${nomeParticipante} (nascimento: ${nascParticipante}).\n\n` +
     `[DADOS RIGOROSOS DO TESTE]\n` +
     `${percentageDetails}\n\n` +
@@ -103,15 +105,16 @@ window.onAiAnalysisRequested = async function(payload) {
         return;
       }
     }
-
     throw new Error('Resposta inválida do proxy AI');
   } catch (err) {
     console.error('AI request error:', err);
     if (analysisStatus) analysisStatus.textContent = 'Erro ao chamar o proxy de IA. Usando fallback local.';
+    
+    // Fallback error UI state
+    if (aiLoadingWrapper) aiLoadingWrapper.classList.add('hidden');
+    if (aiAnalysisBtn) aiAnalysisBtn.classList.remove('hidden');
+    if (analysisStatus) analysisStatus.classList.remove('hidden');
   }
-
-  const fallback = `Análise DISC para ${nomeParticipante}: perfil dominante calculado: ${letra1}.\n\n${percentageDetails}\n\nResumo: Este texto é uma análise local de exemplo. Para uma análise completa, configure a chave no servidor e reinicie o backend.`;
-  window.deliverAiAnalysis(fallback);
 };
 
 window.deliverAiAnalysis = function(analysisText) {
@@ -119,14 +122,17 @@ window.deliverAiAnalysis = function(analysisText) {
   const aiAnalysisBtn = document.getElementById('aiAnalysisBtn');
   const downloadReportBtn = document.getElementById('downloadReportBtn');
   const openReportBtn = document.getElementById('openReportBtn');
+  
+  // Finaliza UI de carregamento
+  const aiLoadingWrapper = document.getElementById('aiLoadingWrapper');
+  if (aiLoadingWrapper) aiLoadingWrapper.classList.add('hidden'); 
+  if (analysisStatus) analysisStatus.classList.remove('hidden'); 
 
   if (!analysisText) {
     if (analysisStatus) {
       analysisStatus.textContent = 'Não foi possível receber o texto da IA. Tente novamente.';
     }
-    if (aiAnalysisBtn) {
-      aiAnalysisBtn.disabled = false;
-    }
+    if (aiAnalysisBtn) aiAnalysisBtn.classList.remove('hidden');
     return;
   }
 
@@ -134,7 +140,6 @@ window.deliverAiAnalysis = function(analysisText) {
     window.quizAppState.aiAnalysisContent = analysisText;
   }
 
-  // Salva o texto bruto do relatório no localStorage de forma limpa
   localStorage.setItem('discAiReport', analysisText);
 
   if (analysisStatus) {
