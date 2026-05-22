@@ -14,7 +14,8 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  background: linear-gradient(145deg, #6c5ce7 0%, #2d1e70 45%, #05030a 100%);
+  background-attachment: fixed;
   color: var(--white);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   opacity: 1;
@@ -1211,4 +1212,133 @@ h1, h2, h3, .impact-text {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: none;
+}
+/* =========================================================
+   OTIMIZAÇÕES PARA PC / DESKTOP (Telas maiores que 992px)
+   ========================================================= */
+
+@media (min-width: 992px) {
+  /* 1. Alarga os limites da página para usar o espaço do monitor */
+  .quiz-wrapper,
+  .top-brand {
+    max-width: 1300px;
+  }
+/* --- MANTÉM A PERGUNTA, TEXTO E SVG COMPACTOS NA ESQUERDA --- */
+  .unified-quiz-card .question-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto 1fr auto; /* Cria "andares" específicos para cada item */
+    column-gap: 3rem; 
+    row-gap: 1rem;
+    align-items: start; /* Trava os itens no topo para não ficarem "boiando" longe uns dos outros */
+  }
+
+  .unified-quiz-card .question-meta {
+    grid-column: 1 / -1;
+    grid-row: 1; /* 1º Andar (Topo) */
+  }
+
+  .unified-quiz-card #quizQuestion {
+    grid-column: 1;
+    grid-row: 2; /* 2º Andar (Esquerda) */
+    margin-bottom: 0;
+  }
+
+  .unified-quiz-card #quizHint {
+    grid-column: 1;
+    grid-row: 3; /* 3º Andar (Esquerda) */
+  }
+
+  .unified-quiz-card .question-card > div:nth-of-type(3) /* A div do Cérebro (SVG) */ {
+    grid-column: 1;
+    grid-row: 4; /* 4º Andar (Esquerda) - Fica colado debaixo do Hint! */
+    align-self: start; 
+    margin-top: 1rem; /* Dá só um respiro do texto para a imagem */
+  }
+
+  /* Reduz um pouco o tamanho do cérebro para ele não empurrar a tela e ficar mais elegante */
+  .unified-quiz-card .question-card > div:nth-of-type(3) img {
+    max-height: 180px;
+    width: auto;
+  }
+
+  /* --- BOTÕES NA DIREITA --- */
+  .unified-quiz-card #answerButtons {
+    grid-column: 2;
+    grid-row: 2 / span 3; /* Diz para os botões ocuparem os andares 2, 3 e 4 na direita */
+    align-self: center; /* Deixa os botões perfeitamente centralizados ao lado do bloco de texto+imagem */
+  }
+
+  .unified-quiz-card #startNote {
+    grid-column: 1 / -1;
+    grid-row: 5; /* 5º Andar (Rodapé) */
+  }
+
+  /* 3. Tela de Resultados: Cards e Listas lado a lado */
+  .result-card {
+    max-width: 1200px;
+    padding: 3.5rem;
+  }
+
+  /* Quebra as listas de Forças, Desafios e Recomendações em 3 colunas horizontais */
+  .result-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 2rem;
+  }
+
+  /* 4. Tela do Relatório de IA (Nova página dedicada) */
+  .report-page-wrap {
+    max-width: 1200px;
+  }
+
+  .report-card-container {
+    padding: 4rem 5rem; /* Mais respiro lateral no texto do relatório */
+  }
+}
+
+/* --- ALINHAMENTO DO SVG DO CÉREBRO (info.html) --- */
+.hero-image-container {
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  height: 100%; /* Avisa para a caixa acompanhar a altura do texto ao lado */
+}
+
+.hero-illustration {
+  width: 100%; /* Libera a imagem para preencher toda a largura da coluna */
+  height: auto; /* Mantém a proporção perfeita */
+  max-height: 450px; /* Limite bem alto, apenas para não ficar colossal em telas gigantes */
+  object-fit: contain;
+}
+
+/* Ganho extra de tamanho no Computador e alinhamento à direita */
+@media (min-width: 992px) {
+  .hero-illustration {
+    transform: scale(1.15); 
+  }
+  
+  .hero-image-container {
+    justify-content: flex-end; /* Empurra a imagem para o limite direito da coluna */
+    padding-left: 3rem; /* Dá um empurrão extra criando um espaço vazio na esquerda */
+  }
+}
+
+/* --- Caixas destacadas do Mobile/Gerais (O Molho da Abigail) --- */
+.question-card,
+.result-card,
+.mode-panel,
+.feature-card,
+.info-card,
+.report-card-container {
+  /* Fundo roxo translúcido */
+  background: rgba(82, 68, 168, 0.15); 
+  /* Borda branca bem fina e elegante */
+  border: 1px solid rgba(255, 255, 255, 0.25); 
+  /* Efeito de vidro desfocado atrás da caixa */
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px);
+  /* Sombra escura para "descolar" a caixa do fundo preto */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
+  border-radius: 24px;
 }

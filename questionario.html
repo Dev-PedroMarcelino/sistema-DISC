@@ -38,42 +38,44 @@
         </div>
       </div>
 
-      <div class="mode-panel">
-        <span class="section-label">Escolha o modo do questionário</span>
-        <div class="response-grid mode-grid" id="modeButtons">
-          <button type="button" class="btn btn-mode" data-mode="simple">Simples (15)</button>
-          <button type="button" class="btn btn-mode" data-mode="medium">Médio (20)</button>
-          <button type="button" class="btn btn-mode" data-mode="complete">Completo (30)</button>
+      <div class="unified-quiz-card">
+        
+        <div class="mode-panel">
+          <span class="section-label">Escolha o modo do questionário</span>
+          <div class="response-grid mode-grid" id="modeButtons">
+            <button type="button" class="btn btn-mode" data-mode="simple">Simples (15)</button>
+            <button type="button" class="btn btn-mode" data-mode="medium">Médio (20)</button>
+            <button type="button" class="btn btn-mode" data-mode="complete">Completo (30)</button>
+          </div>
+          <div class="mode-summary" id="modeSummary">Selecione um modo para iniciar e obter perguntas mais rápidas e confiáveis.</div>
+          <button class="primary-btn" id="beginQuiz" disabled style="display:none;">Iniciar questionário</button>
         </div>
-        <div class="mode-summary" id="modeSummary">Selecione um modo para iniciar e obter perguntas mais rápidas e confiáveis.</div>
-        <button class="primary-btn" id="beginQuiz" disabled style="display:none;">Iniciar questionário</button>
-      </div>
 
-      <section class="question-panel" id="questionPanel">
-        <div class="question-card">
-          <div class="question-meta">
-            <span class="section-label">Pergunta</span>
-            <div class="question-span" id="quizProgress">Escolha um modo para começar</div>
+        <section class="question-panel" id="questionPanel">
+          <div class="question-card">
+            <div class="question-meta">
+              <span class="section-label">Pergunta:</span>
+              <div class="question-span" id="quizProgress">Escolha um modo para começar</div>
+            </div>
+
+            <h2 id="quizQuestion">Selecione um modo para começar.</h2>
+            <p id="quizHint">Escolha simples, médio ou completo para descobrir seu perfil DISC.</p>
+
+            <div class="response-grid" id="answerButtons">
+              <div class="answer-note">Escolha um modo acima e depois clique em Iniciar questionário para ver as respostas.</div>
+            </div>
+
+            <div>
+              <img src="midia/cerebroinicio.svg" alt="">
+            </div>
+
+            <div class="response-note" id="startNote">
+              <strong>Atenção:</strong> faça login em <a href="index.html" style="color: #fff; text-decoration: underline;">index.html</a> antes de iniciar.
+            </div>
           </div>
+        </section>
 
-          <h2 id="quizQuestion">Selecione um modo para começar.</h2>
-          <p id="quizHint">Escolha simples, médio ou completo para descobrir seu perfil DISC.</p>
-
-          <div class="response-grid" id="answerButtons">
-            <div class="answer-note">Escolha um modo acima e depois clique em Iniciar questionário para ver as respostas.</div>
-          </div>
-
-          <div>
-            <img src="midia/cerebroinicio.svg" alt="">
-          </div>
-
-          <div class="response-note" id="startNote">
-            <strong>Atenção:</strong> faça login em <a href="index.html" style="color: #fff; text-decoration: underline;">index.html</a> antes de iniciar.
-          </div>
-        </div>
-      </section>
-
-      <section class="result-screen" id="resultScreen">
+      </div> <section class="result-screen" id="resultScreen">
         <div class="result-card">
           <span class="section-label">Resultado</span>
           <h2 id="resultTitle">Seu perfil predominante</h2>
